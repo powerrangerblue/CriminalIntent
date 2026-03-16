@@ -29,14 +29,18 @@ import androidx.fragment.app.FragmentManager;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String ARG_IS_NEW_CRIME = "is_new_crime";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_TIME = "DialogTime";
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_TIME = 1;
 
     private Crime mCrime;
     private File mPhotoFile;
@@ -46,6 +50,7 @@ public class CrimeFragment extends Fragment {
 
     private EditText mTitleField;
     private Button mDateButton;
+    private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
     private Button mReportButton;
     private EditText mSuspectField;
@@ -108,6 +113,7 @@ public class CrimeFragment extends Fragment {
 
         mTitleField = view.findViewById(R.id.crime_title);
         mDateButton = view.findViewById(R.id.crime_date);
+        mTimeButton = view.findViewById(R.id.crime_time);
         mSolvedCheckBox = view.findViewById(R.id.crime_solved);
         mReportButton = view.findViewById(R.id.crime_report);
         mSuspectField = view.findViewById(R.id.crime_suspect);
@@ -119,7 +125,7 @@ public class CrimeFragment extends Fragment {
         mTitleField.setText(mCrime.getTitle());
         mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSuspectField.setText(mCrime.getSuspect());
-        updateDate();
+        updateDateAndTime();
         updatePhotoView();
 
         mTitleField.addTextChangedListener(new TextWatcher() {
@@ -166,6 +172,16 @@ public class CrimeFragment extends Fragment {
                 DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
                 dialog.show(manager, DIALOG_DATE);
+            }
+        });
+
+        mTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager manager = getParentFragmentManager();
+                TimePickerFragment dialog = TimePickerFragment.newInstance(mCrime.getDate());
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
+                dialog.show(manager, DIALOG_TIME);
             }
         });
 
@@ -224,7 +240,11 @@ public class CrimeFragment extends Fragment {
         if (requestCode == REQUEST_DATE) {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
-            updateDate();
+            updateDateAndTime();
+        } else if (requestCode == REQUEST_TIME) {
+            Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
+            mCrime.setDate(date);
+            updateDateAndTime();
         }
     }
 
@@ -254,8 +274,9 @@ public class CrimeFragment extends Fragment {
         mPhotoView.setImageDrawable(null);
     }
 
-    private void updateDate() {
+    private void updateDateAndTime() {
         mDateButton.setText(DateFormat.getDateInstance(DateFormat.FULL).format(mCrime.getDate()));
+        mTimeButton.setText(new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(mCrime.getDate()));
     }
 
     private String getCrimeReport() {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/crime_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="72dp"
@@ -13,9 +14,11 @@
         android:id="@+id/crime_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/crime_solved_icon"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,6 +31,17 @@
         app:layout_constraintEnd_toStartOf="@id/crime_solved_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/crime_title" />
+
+    <TextView
+        android:id="@+id/crime_status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toStartOf="@id/crime_solved_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/crime_date" />
 
     <ImageView
         android:id="@+id/crime_solved_icon"
@@ -48,7 +62,9 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/crime_date" />
+        app:layout_constraintTop_toBottomOf="@id/crime_status"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

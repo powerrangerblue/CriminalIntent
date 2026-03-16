@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.DatePicker;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,15 +17,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class DatePickerFragment extends DialogFragment {
-    private static final String ARG_DATE = "date";
-    public static final String EXTRA_DATE = "com.example.criminalintent.date";
+public class TimePickerFragment extends DialogFragment {
+    private static final String ARG_TIME = "time";
+    public static final String EXTRA_TIME = "com.example.criminalintent.time";
 
-    public static DatePickerFragment newInstance(Date date) {
+    public static TimePickerFragment newInstance(Date date) {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_DATE, date);
+        args.putSerializable(ARG_TIME, date);
 
-        DatePickerFragment fragment = new DatePickerFragment();
+        TimePickerFragment fragment = new TimePickerFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -33,33 +33,32 @@ public class DatePickerFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        Date date = (Date) getArguments().getSerializable(ARG_DATE);
+        Date date = (Date) getArguments().getSerializable(ARG_TIME);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        final int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        final int minute = calendar.get(Calendar.MINUTE);
-        final int second = calendar.get(Calendar.SECOND);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
 
         View v = LayoutInflater.from(getActivity())
-                .inflate(R.layout.dialog_date, null);
+                .inflate(R.layout.dialog_time, null);
 
-        DatePicker datePicker = v.findViewById(R.id.dialog_date_picker);
-        datePicker.init(year, month, day, null);
+        TimePicker timePicker = v.findViewById(R.id.dialog_time_picker);
+        timePicker.setCurrentHour(hour);
+        timePicker.setCurrentMinute(minute);
 
         return new AlertDialog.Builder(getActivity())
                 .setView(v)
-                .setTitle(R.string.date_picker_title)
+                .setTitle("Time of crime:")
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        int year = datePicker.getYear();
-                        int month = datePicker.getMonth();
-                        int day = datePicker.getDayOfMonth();
-                        Date date = new GregorianCalendar(year, month, day, hour, minute, second).getTime();
+                        int hour = timePicker.getCurrentHour();
+                        int minute = timePicker.getCurrentMinute();
+                        Date date = new GregorianCalendar(year, month, day, hour, minute).getTime();
                         sendResult(android.app.Activity.RESULT_OK, date);
                     }
                 })
@@ -68,15 +67,11 @@ public class DatePickerFragment extends DialogFragment {
 
     private void sendResult(int resultCode, Date date) {
         if (getTargetFragment() == null) {
-            // Support modern Fragment Result API if target fragment is not set
-            Bundle result = new Bundle();
-            result.putSerializable(EXTRA_DATE, date);
-            getParentFragmentManager().setFragmentResult("request_date", result);
             return;
         }
 
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_DATE, date);
+        intent.putExtra(EXTRA_TIME, date);
 
         getTargetFragment()
                 .onActivityResult(getTargetRequestCode(), resultCode, intent);

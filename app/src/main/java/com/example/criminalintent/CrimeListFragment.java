@@ -1,6 +1,7 @@
 package com.example.criminalintent;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +20,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class CrimeListFragment extends Fragment {
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
@@ -132,24 +135,36 @@ public class CrimeListFragment extends Fragment {
         private Crime mCrime;
         private final TextView mTitleTextView;
         private final TextView mDateTextView;
+        private final TextView mStatusTextView;
         private final ImageView mSolvedImageView;
+        private final View mItemLayout;
+        private final SimpleDateFormat mDateFormat = new SimpleDateFormat("EEEE, MMM dd, yyyy hh:mm a", Locale.getDefault());
 
         public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_crime, parent, false));
 
             itemView.setOnClickListener(this);
+            mItemLayout = itemView.findViewById(R.id.crime_item_layout);
             mTitleTextView = itemView.findViewById(R.id.crime_title);
             mDateTextView = itemView.findViewById(R.id.crime_date);
+            mStatusTextView = itemView.findViewById(R.id.crime_status);
             mSolvedImageView = itemView.findViewById(R.id.crime_solved_icon);
         }
 
         public void bind(Crime crime) {
             mCrime = crime;
             mTitleTextView.setText(mCrime.getTitle());
-            mDateTextView.setText(mCrime.getDate().toString());
+            mDateTextView.setText(mDateFormat.format(mCrime.getDate()));
+            
             if (mCrime.isSolved()) {
+                mItemLayout.setBackgroundColor(Color.parseColor("#E8F5E9")); // Light Green
+                mStatusTextView.setText(R.string.crime_solved);
+                mStatusTextView.setTextColor(Color.parseColor("#2E7D32")); // Dark Green
                 mSolvedImageView.setVisibility(View.VISIBLE);
             } else {
+                mItemLayout.setBackgroundColor(Color.TRANSPARENT);
+                mStatusTextView.setText(R.string.crime_open);
+                mStatusTextView.setTextColor(Color.GRAY);
                 mSolvedImageView.setVisibility(View.GONE);
             }
         }
