@@ -8,8 +8,10 @@
     <string name="hide_subtitle">Hide Subtitle</string>
     <string name="title_section">TITLE</string>
     <string name="details_section">DETAILS</string>
-    <string name="crime_suspect">CHOOSE SUSPECT</string>
+    <string name="crime_suspect">SUSPECT</string>
     <string name="send_report">SEND CRIME REPORT</string>
+    <string name="contact_police">CONTACT POLICE</string>
+    <string name="contacting_police_msg">Contacting Police...</string>
     <string name="add_crime">ADD CRIME</string>
     <string name="crime_report_subject">Crime Report</string>
     <string name="crime_report_solved">The crime is solved.</string>

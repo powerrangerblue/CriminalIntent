@@ -34,7 +34,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:contentDescription="@string/crime_solved"
-        android:src="@drawable/ic_solved"
+        android:src="@drawable/handcuff"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

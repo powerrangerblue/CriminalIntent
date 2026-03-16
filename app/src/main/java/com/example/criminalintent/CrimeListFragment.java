@@ -80,7 +80,9 @@ public class CrimeListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.new_crime) {
-            Intent intent = CrimeActivity.newCrimeIntent(requireActivity());
+            Crime crime = new Crime();
+            CrimeLab.get(requireActivity()).addCrime(crime);
+            Intent intent = CrimePagerActivity.newIntent(requireActivity(), crime.getId());
             startActivity(intent);
             return true;
         }
@@ -156,7 +158,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            Intent intent = CrimeActivity.newIntent(requireActivity(), mCrime.getId());
+            Intent intent = CrimePagerActivity.newIntent(requireActivity(), mCrime.getId());
             startActivity(intent);
         }
     }
