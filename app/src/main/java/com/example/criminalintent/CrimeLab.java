@@ -40,6 +40,12 @@ public class CrimeLab {
         mCrimes.add(crime);
     }
 
+    public void updateCrime(Crime crime) {
+        // Since we're using an in-memory list and Crime objects are passed by reference,
+        // the list already contains the updated object.
+        // This method will be useful later if we migrate to a database.
+    }
+
     public Crime getCrime(UUID id) {
         for (Crime crime : mCrimes) {
             if (crime.getId().equals(id)) {

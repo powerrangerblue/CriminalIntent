@@ -24,6 +24,7 @@
     <string name="crime_photo_image_description">Crime photo</string>
     <string name="no_contacts_app">No contacts app available.</string>
     <string name="no_camera_app">No camera app available.</string>
+    <string name="date_picker_title">Date of crime:</string>
 
     <plurals name="subtitle_plural">
         <item quantity="one">%d crime</item>

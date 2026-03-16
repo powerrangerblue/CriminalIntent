@@ -80,9 +80,7 @@ public class CrimeListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.new_crime) {
-            Crime crime = new Crime();
-            CrimeLab.get(requireActivity()).addCrime(crime);
-            Intent intent = CrimePagerActivity.newIntent(requireActivity(), crime.getId());
+            Intent intent = CrimeActivity.newCrimeIntent(requireActivity());
             startActivity(intent);
             return true;
         }

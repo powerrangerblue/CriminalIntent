@@ -1,5 +1,6 @@
 package com.example.criminalintent;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,14 +25,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String ARG_IS_NEW_CRIME = "is_new_crime";
+    private static final String DIALOG_DATE = "DialogDate";
+    private static final int REQUEST_DATE = 0;
 
     private Crime mCrime;
     private File mPhotoFile;
@@ -92,15 +97,6 @@ public class CrimeFragment extends Fragment {
                 requireActivity(),
                 requireActivity().getPackageName() + ".fileprovider",
                 mPhotoFile
-        );
-
-        getParentFragmentManager().setFragmentResultListener(
-                DatePickerFragment.REQUEST_DATE,
-                this,
-                (requestKey, bundle) -> {
-                    mCrime.setDate((java.util.Date) bundle.getSerializable(DatePickerFragment.RESULT_DATE));
-                    updateDate();
-                }
         );
     }
 
@@ -166,8 +162,10 @@ public class CrimeFragment extends Fragment {
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                FragmentManager manager = getParentFragmentManager();
                 DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
-                dialog.show(getParentFragmentManager(), DatePickerFragment.TAG);
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
+                dialog.show(manager, DIALOG_DATE);
             }
         });
 
@@ -215,6 +213,27 @@ public class CrimeFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == REQUEST_DATE) {
+            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+            mCrime.setDate(date);
+            updateDate();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (!mIsNewCrime || mWasAdded) {
+            CrimeLab.get(requireActivity()).updateCrime(mCrime);
+        }
     }
 
     @Override
