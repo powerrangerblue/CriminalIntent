@@ -69,13 +69,18 @@ public class CrimeFragment extends Fragment {
         registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 Uri contactUri = result.getData().getData();
-                String[] queryFields = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+                String[] queryFields = new String[]{
+                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                        ContactsContract.CommonDataKinds.Phone.NUMBER
+                };
                 try (Cursor c = requireActivity().getContentResolver()
                         .query(contactUri, queryFields, null, null, null)) {
                     if (c != null && c.getCount() > 0) {
                         c.moveToFirst();
                         String suspect = c.getString(0);
+                        String phone = c.getString(1);
                         mCrime.setSuspect(suspect);
+                        mCrime.setPhone(phone);
                         updateSuspectButton();
                     }
                 }
@@ -201,7 +206,7 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
         mSuspectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -217,7 +222,14 @@ public class CrimeFragment extends Fragment {
         mContactPoliceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(requireActivity(), R.string.contacting_police_msg, Toast.LENGTH_SHORT).show();
+                String phoneNumber = mCrime.getPhone();
+                Intent contactPolice;
+                if (phoneNumber != null && !phoneNumber.isEmpty()) {
+                    contactPolice = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phoneNumber));
+                } else {
+                    contactPolice = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"));
+                }
+                startActivity(contactPolice);
             }
         });
 
@@ -232,7 +244,7 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        if (mIsNewCrime && !mWasAdded) {
+        if (mIsNewCrime && !mWasAdded && CrimeLab.get(requireActivity()).getCrimes().size() < 10) {
             mAddCrimeButton.setVisibility(View.VISIBLE);
             mAddCrimeButton.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -72,6 +72,11 @@ public class CrimeListFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_crime_list, menu);
 
+        MenuItem newCrimeItem = menu.findItem(R.id.new_crime);
+        if (CrimeLab.get(requireActivity()).getCrimes().size() >= 10) {
+            newCrimeItem.setVisible(false);
+        }
+
         MenuItem subtitleItem = menu.findItem(R.id.show_subtitle);
         if (mSubtitleVisible) {
             subtitleItem.setTitle(R.string.hide_subtitle);
@@ -111,6 +116,7 @@ public class CrimeListFragment extends Fragment {
         }
 
         updateSubtitle();
+        requireActivity().invalidateOptionsMenu();
     }
 
     private void updateSubtitle() {
