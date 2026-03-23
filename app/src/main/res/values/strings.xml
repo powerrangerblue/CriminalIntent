@@ -10,6 +10,7 @@
     <string name="title_section">TITLE</string>
     <string name="details_section">DETAILS</string>
     <string name="crime_suspect">SUSPECT</string>
+    <string name="choose_suspect">CHOOSE SUSPECT</string>
     <string name="send_report">SEND CRIME REPORT</string>
     <string name="contact_police">CONTACT POLICE</string>
     <string name="contacting_police_msg">Contacting Police...</string>

@@ -3,9 +3,12 @@ package com.example.criminalintent;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -53,7 +56,7 @@ public class CrimeFragment extends Fragment {
     private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
     private Button mReportButton;
-    private EditText mSuspectField;
+    private Button mSuspectButton;
     private Button mContactPoliceButton;
     private Button mAddCrimeButton;
     private ImageButton mPhotoButton;
@@ -61,6 +64,23 @@ public class CrimeFragment extends Fragment {
 
     private final ActivityResultLauncher<Uri> mTakePhoto =
         registerForActivityResult(new ActivityResultContracts.TakePicture(), this::onPhotoCaptured);
+
+    private final ActivityResultLauncher<Intent> mPickContact =
+        registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                Uri contactUri = result.getData().getData();
+                String[] queryFields = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+                try (Cursor c = requireActivity().getContentResolver()
+                        .query(contactUri, queryFields, null, null, null)) {
+                    if (c != null && c.getCount() > 0) {
+                        c.moveToFirst();
+                        String suspect = c.getString(0);
+                        mCrime.setSuspect(suspect);
+                        updateSuspectButton();
+                    }
+                }
+            }
+        });
 
     public static CrimeFragment newInstance(UUID crimeId) {
         return newInstance(crimeId, false);
@@ -116,7 +136,7 @@ public class CrimeFragment extends Fragment {
         mTimeButton = view.findViewById(R.id.crime_time);
         mSolvedCheckBox = view.findViewById(R.id.crime_solved);
         mReportButton = view.findViewById(R.id.crime_report);
-        mSuspectField = view.findViewById(R.id.crime_suspect);
+        mSuspectButton = view.findViewById(R.id.crime_suspect);
         mContactPoliceButton = view.findViewById(R.id.crime_contact_police);
         mAddCrimeButton = view.findViewById(R.id.crime_add);
         mPhotoButton = view.findViewById(R.id.crime_camera);
@@ -124,9 +144,9 @@ public class CrimeFragment extends Fragment {
 
         mTitleField.setText(mCrime.getTitle());
         mSolvedCheckBox.setChecked(mCrime.isSolved());
-        mSuspectField.setText(mCrime.getSuspect());
         updateDateAndTime();
         updatePhotoView();
+        updateSuspectButton();
 
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
@@ -136,21 +156,6 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 mCrime.setTitle(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
-
-        mSuspectField.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                mCrime.setSuspect(charSequence.toString());
             }
 
             @Override
@@ -196,6 +201,19 @@ public class CrimeFragment extends Fragment {
             }
         });
 
+        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        mSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPickContact.launch(pickContact);
+            }
+        });
+
+        PackageManager packageManager = requireActivity().getPackageManager();
+        if (packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+            mSuspectButton.setEnabled(false);
+        }
+
         mContactPoliceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -229,6 +247,14 @@ public class CrimeFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void updateSuspectButton() {
+        if (mCrime.getSuspect() != null && !mCrime.getSuspect().isEmpty()) {
+            mSuspectButton.setText(mCrime.getSuspect());
+        } else {
+            mSuspectButton.setText(R.string.choose_suspect);
+        }
     }
 
     @Override
