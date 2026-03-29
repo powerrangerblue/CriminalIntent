@@ -28,6 +28,7 @@
     <string name="no_contacts_app">No hay aplicación de contactos disponible.</string>
     <string name="no_camera_app">No hay aplicación de cámara disponible.</string>
     <string name="date_picker_title">Fecha del crimen:</string>
+    <string name="tablet_welcome_message">Bienvenido. Seleccione un crimen de la lista.</string>
 
     <plurals name="subtitle_plural">
         <item quantity="one">%d crimen</item>

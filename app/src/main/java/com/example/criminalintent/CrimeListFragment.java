@@ -1,6 +1,7 @@
 package com.example.criminalintent;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +32,7 @@ public class CrimeListFragment extends Fragment {
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
     private RecyclerView mCrimeRecyclerView;
+    private FloatingActionButton mAddCrimeFab;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
     private Callbacks mCallbacks;
@@ -38,6 +42,7 @@ public class CrimeListFragment extends Fragment {
      */
     public interface Callbacks {
         void onCrimeSelected(Crime crime);
+        void onCreateNewCrime();
     }
 
     @Override
@@ -69,7 +74,15 @@ public class CrimeListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
 
         mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
+        mAddCrimeFab = view.findViewById(R.id.add_crime_fab);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mAddCrimeFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addCrime();
+            }
+        });
 
         updateUI();
 
@@ -109,10 +122,7 @@ public class CrimeListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.new_crime) {
-            Crime crime = new Crime();
-            CrimeLab.get(requireActivity()).addCrime(crime);
-            updateUI();
-            mCallbacks.onCrimeSelected(crime);
+            addCrime();
             return true;
         }
 
@@ -124,6 +134,10 @@ public class CrimeListFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addCrime() {
+        mCallbacks.onCreateNewCrime();
     }
 
     public void updateUI() {

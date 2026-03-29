@@ -1,6 +1,7 @@
 package com.example.criminalintent;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -64,6 +65,12 @@ public class CrimeFragment extends Fragment {
     private Button mAddCrimeButton;
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
+    private Callbacks mCallbacks;
+
+    public interface Callbacks {
+        void onCrimeUpdated();
+        void onCrimeDeleted();
+    }
 
     private final ActivityResultLauncher<Uri> mTakePhoto =
         registerForActivityResult(new ActivityResultContracts.TakePicture(), this::onPhotoCaptured);
@@ -102,6 +109,20 @@ public class CrimeFragment extends Fragment {
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof Callbacks) {
+            mCallbacks = (Callbacks) context;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
     @Override
@@ -165,6 +186,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 mCrime.setTitle(charSequence.toString());
+                notifyCrimeUpdated();
             }
 
             @Override
@@ -176,6 +198,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mCrime.setSolved(isChecked);
+                notifyCrimeUpdated();
             }
         });
 
@@ -255,7 +278,15 @@ public class CrimeFragment extends Fragment {
                 public void onClick(View view) {
                     CrimeLab.get(requireActivity()).addCrime(mCrime);
                     mWasAdded = true;
-                    requireActivity().finish();
+                    if (mCallbacks != null) {
+                        mCallbacks.onCrimeUpdated();
+                    }
+
+                    if (requireActivity().findViewById(R.id.detail_fragment_container) == null) {
+                        requireActivity().finish();
+                    } else {
+                        mAddCrimeButton.setVisibility(View.GONE);
+                    }
                 }
             });
         } else {
@@ -275,7 +306,17 @@ public class CrimeFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.delete_crime) {
             CrimeLab.get(requireActivity()).deleteCrime(mCrime);
-            requireActivity().finish();
+            if (mCallbacks != null) {
+                mCallbacks.onCrimeDeleted();
+            }
+
+            if (requireActivity().findViewById(R.id.detail_fragment_container) != null) {
+                getParentFragmentManager().beginTransaction()
+                        .remove(this)
+                        .commit();
+            } else {
+                requireActivity().finish();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -299,19 +340,20 @@ public class CrimeFragment extends Fragment {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
             updateDateAndTime();
+            notifyCrimeUpdated();
         } else if (requestCode == REQUEST_TIME) {
             Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
             mCrime.setDate(date);
             updateDateAndTime();
+            notifyCrimeUpdated();
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (!mIsNewCrime || mWasAdded) {
-            CrimeLab.get(requireActivity()).updateCrime(mCrime);
-        }
+        CrimeLab.get(requireActivity()).updateCrime(mCrime);
+        notifyCrimeUpdated();
     }
 
     @Override
@@ -362,6 +404,13 @@ public class CrimeFragment extends Fragment {
     private void onPhotoCaptured(Boolean didTakePhoto) {
         if (Boolean.TRUE.equals(didTakePhoto)) {
             updatePhotoView();
+            notifyCrimeUpdated();
+        }
+    }
+
+    private void notifyCrimeUpdated() {
+        if (mCallbacks != null) {
+            mCallbacks.onCrimeUpdated();
         }
     }
 
