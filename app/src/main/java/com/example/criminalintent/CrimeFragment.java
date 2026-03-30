@@ -46,6 +46,7 @@ public class CrimeFragment extends Fragment {
     private static final String ARG_IS_NEW_CRIME = "is_new_crime";
     private static final String DIALOG_DATE = "DialogDate";
     private static final String DIALOG_TIME = "DialogTime";
+    private static final String DIALOG_IMAGE = "DialogImage";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
 
@@ -267,6 +268,17 @@ public class CrimeFragment extends Fragment {
                     mTakePhoto.launch(mPhotoUri);
                 } catch (ActivityNotFoundException exception) {
                     Toast.makeText(requireActivity(), R.string.no_camera_app, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mPhotoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mPhotoFile != null && mPhotoFile.exists()) {
+                    FragmentManager manager = getParentFragmentManager();
+                    ImageDetailFragment dialog = ImageDetailFragment.newInstance(mPhotoFile);
+                    dialog.show(manager, DIALOG_IMAGE);
                 }
             }
         });

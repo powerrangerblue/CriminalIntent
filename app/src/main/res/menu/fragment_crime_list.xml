@@ -9,6 +9,11 @@
         app:showAsAction="ifRoom|withText" />
 
     <item
+        android:id="@+id/change_language"
+        android:title="@string/change_language"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/show_subtitle"
         android:title="@string/show_subtitle"
         app:showAsAction="never" />
