@@ -81,8 +81,10 @@ public class CrimeListActivity extends AppCompatActivity implements CrimeListFra
             return;
         }
 
+        CrimeLab crimeLab = CrimeLab.get(this);
         Fragment currentDetail = getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container);
-        if (currentDetail == null) {
+        
+        if (crimeLab.getCrimes().isEmpty() || currentDetail == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_fragment_container, new WelcomeFragment(), TAG_WELCOME_FRAGMENT)
                     .commit();
